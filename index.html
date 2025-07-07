@@ -75,7 +75,7 @@
 
     function showChallenge() {
       const ch = challenges[challengeIndex];
-      if (ch && ch.setup) ch.setup(fileSystem);
+      if (ch && typeof ch.setup === 'function') ch.setup(fileSystem);
       challengeDiv.textContent = ch
         ? `Challenge ${challengeIndex + 1}: ${ch.description}`
         : "🎉 All challenges completed!";
@@ -103,6 +103,10 @@
             return `No such directory: ${args[0]}`;
           }
         case 'ls':
+          const targetDir = args[0] ? (pwd === '/' ? `/${args[0]}` : `${pwd}/${args[0]}`) : pwd;
+          if (fileSystem[targetDir] !== 'dir') return `No such directory: ${args[0] || ''}`;
+          const entries = Object.keys(fileSystem).filter(k => k.startsWith(targetDir + '/') && k.split('/').length === targetDir.split('/').length + 2);
+          return entries.map(k => k.split('/').pop()).join('  ');
           const entries = Object.keys(fileSystem).filter(k => k.startsWith(pwd + '/') && k.split('/').length === pwd.split('/').length + 2);
           return entries.map(k => k.split('/').pop()).join('  ');
         case 'touch':
