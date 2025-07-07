@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OS Challenge</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #0f0;
+      font-family: monospace;
+      padding: 20px;
+    }
+    #terminal {
+      white-space: pre-wrap;
+      min-height: 200px;
+    }
+    input {
+      background: black;
+      color: lime;
+      border: none;
+      width: 90%;
+      font-family: monospace;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>OS Challenge</h1>
+  <div id="challenge"></div>
+  <div id="terminal"></div>
+  <form id="commandForm">
+    <label>$ <input id="commandInput" autocomplete="off" autofocus /></label>
+  </form>
+  <script>
+    const challenges = [
+      {
+        description: "Create a directory named 'test'",
+        validate: (fs) => fs['/test'] === 'dir'
+      },
+      {
+        description: "Navigate into 'test' directory",
+        validate: (fs, pwd) => pwd === '/test'
+      },
+      {
+        description: "List contents inside 'test' directory",
+        setup: (fs) => fs['/test/file.txt'] = 'file',
+        validate: (fs, pwd, lastOutput) => lastOutput.includes('file.txt')
+      },
+      {
+        description: "Create a file called 'notes.txt' inside 'test'",
+        validate: (fs) => fs['/test/notes.txt'] === 'file'
+      },
+      {
+        description: "Move back to the root directory",
+        validate: (fs, pwd) => pwd === '/'
+      },
+      {
+        description: "Remove the 'test' directory",
+        validate: (fs) => !fs['/test']
+      },
+      {
+        description: "Create directory 'docs' and file 'readme.md' inside it",
+        validate: (fs) =>
+          fs['/docs'] === 'dir' && fs['/docs/readme.md'] === 'file'
+      }
+    ];
+
+    let fileSystem = { '/': 'dir' };
+    let pwd = '/';
+    let challengeIndex = 0;
+    let terminal = document.getElementById('terminal');
+    let challengeDiv = document.getElementById('challenge');
+    let lastOutput = "";
+
+    function showChallenge() {
+      const ch = challenges[challengeIndex];
+      if (ch && ch.setup) ch.setup(fileSystem);
+      challengeDiv.textContent = ch
+        ? `Challenge ${challengeIndex + 1}: ${ch.description}`
+        : "🎉 All challenges completed!";
+    }
+
+    function renderOutput(text) {
+      terminal.innerHTML += `\n$ ${document.getElementById('commandInput').value}\n${text}`;
+      lastOutput = text;
+    }
+
+    function executeCommand(cmd) {
+      const parts = cmd.trim().split(/\s+/);
+      const [base, ...args] = parts;
+      switch(base) {
+        case 'mkdir':
+          const path = pwd === '/' ? `/${args[0]}` : `${pwd}/${args[0]}`;
+          fileSystem[path] = 'dir';
+          return `Directory '${args[0]}' created.`;
+        case 'cd':
+          const newPath = pwd === '/' ? `/${args[0]}` : `${pwd}/${args[0]}`;
+          if (fileSystem[newPath] === 'dir') {
+            pwd = newPath;
+            return `Moved to ${pwd}`;
+          } else {
+            return `No such directory: ${args[0]}`;
+          }
+        case 'ls':
+          const entries = Object.keys(fileSystem).filter(k => k.startsWith(pwd + '/') && k.split('/').length === pwd.split('/').length + 2);
+          return entries.map(k => k.split('/').pop()).join('  ');
+        case 'touch':
+          const fpath = pwd === '/' ? `/${args[0]}` : `${pwd}/${args[0]}`;
+          fileSystem[fpath] = 'file';
+          return `File '${args[0]}' created.`;
+        case 'rm':
+          const delPath = pwd === '/' ? `/${args[0]}` : `${pwd}/${args[0]}`;
+          if (fileSystem[delPath]) {
+            delete fileSystem[delPath];
+            return `'${args[0]}' removed.`;
+          } else {
+            return `No such file or directory: ${args[0]}`;
+          }
+        default:
+          return `Unknown command: ${base}`;
+      }
+    }
+
+    document.getElementById('commandForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('commandInput');
+      const command = input.value;
+      const output = executeCommand(command);
+      renderOutput(output);
+      input.value = '';
+
+      if (challenges[challengeIndex] && challenges[challengeIndex].validate(fileSystem, pwd, output)) {
+        terminal.innerHTML += "\n✅ Challenge Passed\n";
+        challengeIndex++;
+        showChallenge();
+      }
+    });
+
+    showChallenge();
+  </script>
+</body>
+</html>
