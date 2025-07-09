@@ -96,6 +96,7 @@
           return `Directory '${args[0]}' created.`;
         case 'cd':
           if (args[0] === '..') {
+            terminal.innerHTML += "\n✅ Challenge Passed\n";
             if (pwd !== '/') {
               pwd = pwd.substring(0, pwd.lastIndexOf('/')) || '/';
             }
