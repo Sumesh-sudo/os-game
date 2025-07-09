@@ -45,7 +45,7 @@
       {
         description: "List contents inside 'test' directory",
         setup: (fs) => fs['/test/file.txt'] = 'file',
-        validate: (fs, pwd) => lastOutput.includes('empty')
+        validate: (fs, pwd, lastOutput) => lastOutput.includes('file.txt')
       },
       {
         description: "Create a file called 'notes.txt' inside 'test'",
@@ -127,7 +127,8 @@
             return `'${args[0]}' removed.`;
           } else {
             return `No such file or directory: ${args[0]}`;
-          }
+        case 'pwd':
+          return pwd;
         default:
           return `Unknown command: ${base}`;
       }
