@@ -107,8 +107,6 @@
           if (fileSystem[targetDir] !== 'dir') return `No such directory: ${args[0] || ''}`;
           const entries = Object.keys(fileSystem).filter(k => k.startsWith(targetDir + '/') && k.split('/').length === targetDir.split('/').length + 2);
           return entries.map(k => k.split('/').pop()).join('  ');
-          const entries = Object.keys(fileSystem).filter(k => k.startsWith(pwd + '/') && k.split('/').length === pwd.split('/').length + 2);
-          return entries.map(k => k.split('/').pop()).join('  ');
         case 'touch':
           const fpath = pwd === '/' ? `/${args[0]}` : `${pwd}/${args[0]}`;
           fileSystem[fpath] = 'file';
