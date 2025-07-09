@@ -95,13 +95,18 @@
           fileSystem[path] = 'dir';
           return `Directory '${args[0]}' created.`;
         case 'cd':
+          if (args[0] === '..') {
+            if (pwd !== '/') {
+              pwd = pwd.substring(0, pwd.lastIndexOf('/')) || '/';
+            }
+            return `Moved to ${pwd}`;
+          }
           const newPath = pwd === '/' ? `/${args[0]}` : `${pwd}/${args[0]}`;
           if (fileSystem[newPath] === 'dir') {
             pwd = newPath;
             return `Moved to ${pwd}`;
           } else {
             return `No such directory: ${args[0]}`;
-          }
         case 'ls':
           const target = args[0]
             ? (args[0].startsWith('/') ? args[0] : pwd === '/' ? `/${args[0]}` : `${pwd}/${args[0]}`)
@@ -115,21 +120,6 @@
           const fpath = pwd === '/' ? `/${args[0]}` : `${pwd}/${args[0]}`;
           fileSystem[fpath] = 'file';
           return `File '${args[0]}' created.`;
-          case 'cd':
-  if (args[0] === '..') {
-    if (pwd !== '/') {
-      pwd = pwd.substring(0, pwd.lastIndexOf('/')) || '/';
-    }
-    return `Moved to ${pwd}`;
-  }
-  const newPath = pwd === '/' ? `/${args[0]}` : `${pwd}/${args[0]}`;
-  if (fileSystem[newPath] === 'dir') {
-    pwd = newPath;
-    return `Moved to ${pwd}`;
-  } else {
-    return `No such directory: ${args[0]}`;
-  }
-
         case 'rm':
           const delPath = pwd === '/' ? `/${args[0]}` : `${pwd}/${args[0]}`;
           if (fileSystem[delPath]) {
