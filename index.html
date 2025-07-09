@@ -110,7 +110,7 @@
           const listed = Object.keys(fileSystem)
             .filter(k => k.startsWith(target + '/') && k.split('/').length === target.split('/').length + 2)
             .map(k => k.split('/').pop());
-          return listed.length > 0 ? listed.join('  ') : '[empty]';
+          return listed.length > 0 ? listed.join('  ') : '[empty] ${args[0]}';
         case 'touch':
           const fpath = pwd === '/' ? `/${args[0]}` : `${pwd}/${args[0]}`;
           fileSystem[fpath] = 'file';
