@@ -45,7 +45,7 @@
       {
         description: "List contents inside 'test' directory",
         setup: (fs) => fs['/test/file.txt'] = 'file',
-        validate: (fs, pwd) => lastOutput.includes('empty')
+        validate: (fs, pwd) => lastOutput.includes('[empty]')
       },
       {
         description: "Create a file called 'notes.txt' inside 'test'",
